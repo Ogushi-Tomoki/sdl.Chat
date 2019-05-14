@@ -4,6 +4,9 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.graphics.Color;
+import android.media.AudioAttributes;
+import android.media.AudioManager;
+import android.media.SoundPool;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.NonNull;
@@ -228,12 +231,25 @@ public class MainActivity extends AppCompatActivity {
         }
         messageSeq++;
         long time = System.currentTimeMillis();
-        ChatMessage message = new ChatMessage(messageSeq, time, content, adapter.getName());
+        ChatMessage message = new ChatMessage(messageSeq, time, content, adapter.getName(), 0);
         agent.send(message);
         chatLogAdapter.add(message);
         chatLogAdapter.notifyDataSetChanged();
         logview.smoothScrollToPosition(chatLog.size());
         input.getEditableText().clear();
+    }
+
+    //add sound_sending method
+    public void onClickSoundButton(View v) {
+        Log.d(TAG, "onClickSoundButton");
+        long time = System.currentTimeMillis();
+        ChatMessage message = new ChatMessage(messageSeq, time,"", adapter.getName(), 1);
+        agent.send(message);
+
+//        soundPool.play(soundOne, 1.0f, 1.0f, 0, 0, 1);
+
+//        Toast.makeText(this, "このボタンはまだ機能してないよ！実装頑張れ♡", Toast.LENGTH_SHORT).show();
+
     }
 
     public void setState(State state) {
@@ -268,9 +284,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void showMessage(ChatMessage message) {
-        chatLogAdapter.add(message);
-        chatLogAdapter.notifyDataSetChanged();
-        logview.smoothScrollToPosition(chatLogAdapter.getCount());
+        if(message.sound == 0){
+            chatLogAdapter.add(message);
+            chatLogAdapter.notifyDataSetChanged();
+            logview.smoothScrollToPosition(chatLogAdapter.getCount());
+        } else {
+            soundPlayer.playWarning();
+        }
     }
 
     private void disconnect() {
